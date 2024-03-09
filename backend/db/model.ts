@@ -18,6 +18,7 @@ const mentorSchema = new mongoose.Schema({
   number: { type: String, unique: true },
   photo: String,
   students: [{ type: mongoose.Schema.Types.ObjectId, ref: "Student" }],
+  isLocked: Boolean
 });
 
 const marksSchema = new mongoose.Schema({

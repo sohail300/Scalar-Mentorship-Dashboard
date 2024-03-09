@@ -19,8 +19,8 @@ const Navbar = () => {
       <img src={logo} alt="" className=' h-8' />
       <div className=' flex flex-row'>
         {
-          isMentorLoggedIn ? <div className='bg-red p-2 rounded-md w-24 text-center cursor-pointer' onClick={() => handleLogout()}>LOGOUT</div> :
-            <div className='bg-red p-2 rounded-md w-24 text-center cursor-pointer mr-2' onClick={() => navigate('/login')}>LOGIN</div>
+          isMentorLoggedIn ? <div className='bg-red p-2 rounded-md w-24 text-center cursor-pointer text-white' onClick={() => handleLogout()}>LOGOUT</div> :
+            <div className='bg-red p-2 rounded-md w-24 text-center cursor-pointer mr-2 text-white' onClick={() => navigate('/login')}>LOGIN</div>
         }
       </div>
     </div>

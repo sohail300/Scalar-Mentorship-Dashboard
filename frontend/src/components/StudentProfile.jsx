@@ -4,6 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { isMentorLoggedInState } from "../store/atoms/auth";
 import { useRecoilValue } from "recoil";
 import Login from "./Login";
+import { Loader } from './Loader'
+import { BACKEND_URL } from '../utils/config';
 
 const StudentProfile = () => {
   const { studentId } = useParams();
@@ -13,6 +15,7 @@ const StudentProfile = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [number, setNumber] = useState('');
+  const [photo, setPhoto] = useState('');
   const [idea, setIdea] = useState(0);
   const [execution, setExecution] = useState(0);
   const [viva, setViva] = useState(0)
@@ -36,18 +39,19 @@ const StudentProfile = () => {
   }
 
   async function updateProfile() {
-    const result = await axios.post('http://localhost:3000/api/mentor/assign-marks', {
-      idea, execution, viva, studentId
+    const result = await axios.post(`${BACKEND_URL}/api/mentor/assign-marks`, {
+      idea, execution, viva, studentId, mentorId
     }, {
       headers: {
         Authorization: 'bearer ' + localStorage.getItem('token')
       }
     })
-    console.log(result.data);
+    console.log(result.data.msg);
+    alert(result.data.msg)
   }
 
   async function getData() {
-    const response = await axios.get(`http://localhost:3000/api/student/profile/${studentId}`, {
+    const response = await axios.get(`${BACKEND_URL}/api/student/profile/${studentId}`, {
       headers: {
         Authorization: 'bearer ' + localStorage.getItem('token')
       }
@@ -56,10 +60,11 @@ const StudentProfile = () => {
     setName(response.data.name)
     setEmail(response.data.email)
     setNumber(response.data.number)
+    setPhoto(response.data.photo)
   }
 
   async function getMarks() {
-    const response = await axios.get(`http://localhost:3000/api/student/marks/${studentId}`, {
+    const response = await axios.get(`${BACKEND_URL}/api/student/marks/${studentId}`, {
       headers: {
         Authorization: 'bearer ' + localStorage.getItem('token')
       }
@@ -72,19 +77,22 @@ const StudentProfile = () => {
   }
 
   async function unassignStudent() {
-    const response = await axios.post(`http://localhost:3000/api/mentor/unassign-student`, {
+    const response = await axios.post(`${BACKEND_URL}/api/mentor/unassign-student`, {
       studentId
     }, {
       headers: {
         Authorization: 'bearer ' + localStorage.getItem('token')
       }
     })
-    console.log(response.data)
-    navigate('/my-student')
+    console.log(response.data.msg)
+    alert(response.data.msg)
+    if (response.data.msg == 'Unassigned!') {
+      navigate('/my-student')
+    }
   }
 
   async function getMentorId() {
-    const response = await axios.get('http://localhost:3000/api/auth/mentor-profile', {
+    const response = await axios.get(`${BACKEND_URL}/api/auth/mentor-profile`, {
       headers: {
         Authorization: 'bearer ' + localStorage.getItem('token')
       }
@@ -108,23 +116,27 @@ const StudentProfile = () => {
 
   if (isLoading) {
     return (
-      <div>Loading</div>
+      <Loader />
     )
   }
 
   return (
     <div className=" ml-8 w-3/4">
       <h1 className=" font-bold mb-8" style={{ fontSize: '40px' }}>STUDENT PROFILE</h1>
-      <div className=' flex flex-row items-center px-8 py-4 mx-12 mb-16 border'>
-        <div className='rounded-full bg-black h-24 w-24 mb-4 mr-4'></div>
-        <div className=" flex flex-col justify-center">
-          <div>{name}</div>
-          <div>{email}</div>
-          <div>{number}</div>
+      <div className=' flex flex-row mb-16 justify-between'>
+        <div className="  mr-4 flex flex-row items-center px-8 py-4 mx-12 rounded-xl shadow-[0_25px_40px_-15px_rgba(0,0,0,0.5)] border border-black">
+          <div className=' mr-8'>
+            <img src={photo} alt="" className=" rounded-full h-24 w-24 object-cover" />
+          </div>
+          <div className=" flex flex-col justify-center">
+            <div>{name}</div>
+            <div>{email}</div>
+            <div>{number}</div>
+          </div>
         </div>
       </div>
 
-      <div className=" flex flex-col border">
+      <div className=" flex flex-col ">
 
         <div className=" flex flex-row justify-evenly mb-8">
           <div className=" flex flex-col">
@@ -141,18 +153,20 @@ const StudentProfile = () => {
             <label htmlFor="">Viva (out of 10)</label>
             <input type="number" className=" border rounded-md p-2  " onChange={handleViva} value={viva} />
           </div>
+
+          <div className=" flex flex-col">
+            <label htmlFor="">Total</label>
+            <input type="number" className=" border rounded-md p-2  " onChange={handleTotal} value={total} disabled />
+          </div>
         </div>
 
         <div className=" flex flex-row justify-evenly mb-8">
-          <div className=" flex flex-col">
-            <label htmlFor="">Total</label>
-            <input type="number" className=" border rounded-md p-2  " onChange={handleTotal} value={total} />
+          <div className=" cursor-pointer rounded-md bg-green text-white py-2 px-4 ml-4 text-center" onClick={() => updateProfile()}>UPDATE</div>
+          <div className='  w-1/4'>
+            <div
+              onClick={() => unassignStudent()} className="cursor-pointer rounded-md bg-red text-center text-white p-2" >UNASSIGN STUDENT</div>
           </div>
-          <div className=" cursor-pointer rounded-md bg-red py-2 px-4 ml-4 text-center" onClick={() => updateProfile()}>UPDATE</div>
         </div>
-        <span
-          className=' cursor-pointer rounded-md bg-red p-2 text-center text-white'
-          onClick={() => unassignStudent()}>Unassign Student</span>
       </div>
     </div>
   )

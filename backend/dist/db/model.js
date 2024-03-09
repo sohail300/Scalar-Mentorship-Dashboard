@@ -31,6 +31,7 @@ const mentorSchema = new mongoose_1.default.Schema({
     number: { type: String, unique: true },
     photo: String,
     students: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: "Student" }],
+    isLocked: Boolean
 });
 const marksSchema = new mongoose_1.default.Schema({
     idea: { type: Number, default: 0 },

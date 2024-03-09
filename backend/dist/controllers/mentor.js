@@ -9,14 +9,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendMail = exports.finalSubmit = exports.getMarkedStudents = exports.assignMarks = exports.unassignStudent = exports.assignStudent = exports.getStudents = void 0;
+exports.sendMail = exports.finalSubmit = exports.getMarkedStudents = exports.assignMarks = exports.unassignStudent = exports.assignStudent = exports.getStudents = exports.getMentorDetails = void 0;
 const model_1 = require("../db/model");
 const mongoose_1 = require("mongoose");
+// Get Mentor Details
+function getMentorDetails(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const mentorId = req.params.mentorId;
+            console.log(mentorId);
+            const mentor = yield model_1.Mentor.findById(mentorId);
+            if (mentor) {
+                return res.status(200).json({ details: mentor });
+            }
+            else {
+                return res.status(403).send("Student doesnt exist");
+            }
+        }
+        catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    });
+}
+exports.getMentorDetails = getMentorDetails;
 // Get the students assigned to a mentor
 function getStudents(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            // const mentorId = req.headers['id'];
             const mentorId = req.params.mentorId;
             console.log(mentorId);
             const mentor = yield model_1.Mentor.findById(mentorId).populate("students");
@@ -42,11 +62,16 @@ function assignStudent(req, res) {
             const { studentId } = req.body;
             const student = yield model_1.Student.findById(studentId);
             if (!student) {
-                return res.status(403).send("Student doesnt exist");
+                return res.status(403).json({ msg: "Student doesnt exist" });
             }
             const mentor = yield model_1.Mentor.findById(mentorId);
+            if (mentor.isLocked) {
+                return res
+                    .status(200)
+                    .json({ msg: "It is locked, you cant change now!" });
+            }
             if (!mentor) {
-                return res.status(403).send("Mentor doesnt exist");
+                return res.status(403).json({ msg: "Mentor doesnt exist" });
             }
             const studentIdObject = new mongoose_1.Types.ObjectId(studentId);
             const mentorIdObject = new mongoose_1.Types.ObjectId(mentorId);
@@ -55,20 +80,20 @@ function assignStudent(req, res) {
                 yield mentor.save();
             }
             else {
-                return res.status(403).send("Mentor already has 4 students");
+                return res.status(403).json({ msg: "Mentor already has 4 students" });
             }
             if (!student.mentor) {
                 student.mentor = mentorIdObject;
                 yield student.save();
             }
             else {
-                return res.status(403).send("Mentor already exist");
+                return res.status(403).json({ msg: "Mentor already exist" });
             }
-            return res.status(201).send("Assigned!");
+            return res.status(201).json({ msg: "Assigned!" });
         }
         catch (error) {
             console.error(error);
-            res.status(500).json({ error: "Internal Server Error" });
+            res.status(500).json({ msg: "Internal Server Error" });
         }
     });
 }
@@ -81,35 +106,47 @@ function unassignStudent(req, res) {
             const { studentId } = req.body;
             const student = yield model_1.Student.findById(studentId);
             if (!student) {
-                return res.status(403).send("Student doesnt exist");
+                return res.status(403).json({ msg: "Student doesnt exist" });
             }
             const mentor = yield model_1.Mentor.findById(mentorId);
+            console.log(mentor);
+            if (mentor.isLocked) {
+                return res
+                    .status(200)
+                    .json({ msg: "It is locked, you cant change now!" });
+            }
             if (!mentor) {
-                return res.status(403).send("Mentor doesnt exist");
+                return res.status(403).json({ msg: "Mentor doesnt exist" });
             }
             const studentIdObject = new mongoose_1.Types.ObjectId(studentId);
             const mentorIdObject = new mongoose_1.Types.ObjectId(mentorId);
-            if (mentorIdObject.equals(student.mentor)) {
-                student.mentor = null;
-                yield student.save();
-            }
-            else {
-                return res.status(403).send("Mentor isnt this");
-            }
-            if (mentor.students.length > 1) {
+            if (mentor.students.length > 3) {
                 let newArray = mentor.students.filter((item) => !item.equals(studentIdObject));
                 mentor.students = newArray;
                 yield mentor.save();
                 console.log(mentor.students);
+                if (mentorIdObject.equals(student.mentor)) {
+                    student.mentor = null;
+                    student.isMarked = null;
+                    const marks = yield model_1.Marks.findById(student.marks);
+                    marks.idea = 0;
+                    marks.execution = 0;
+                    marks.viva = 0;
+                    marks.total = 0;
+                    yield student.save();
+                }
+                else {
+                    return res.status(403).json({ msg: "Mentor isnt this" });
+                }
             }
             else {
-                return res.status(403).send("Mentor has 3 students");
+                return res.status(403).json({ msg: "Mentor has 3 students" });
             }
-            return res.status(201).send("Unassigned!");
+            return res.status(201).json({ msg: "Unassigned!" });
         }
         catch (error) {
             console.error(error);
-            res.status(500).json({ error: "Internal Server Error" });
+            res.status(500).json({ msg: "Internal Server Error" });
         }
     });
 }
@@ -118,17 +155,18 @@ exports.unassignStudent = unassignStudent;
 function assignMarks(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const { studentId } = req.body;
+            const { studentId, mentorId } = req.body;
             const { idea, execution, viva } = req.body;
-            console.log(studentId);
-            console.log(idea);
-            console.log(execution);
-            console.log(viva);
             const student = yield model_1.Student.findById(studentId);
             const marks = yield model_1.Marks.findById(student.marks);
-            console.log(marks);
+            const mentor = yield model_1.Mentor.findById(mentorId);
+            if (mentor.isLocked) {
+                return res
+                    .status(203)
+                    .json({ msg: "It is locked, you cant change now!" });
+            }
             if (!marks) {
-                return res.status(404).send("Marks not found for the student");
+                return res.status(404).json({ msg: "Marks not found for the student" });
             }
             marks.idea = idea;
             marks.execution = execution;
@@ -138,12 +176,11 @@ function assignMarks(req, res) {
             student.isMarked = true;
             yield student.save();
             yield marks.save();
-            console.log(marks);
-            return res.status(201).send("Marks Assigned!");
+            return res.status(201).json({ msg: "Marks Assigned!" });
         }
         catch (error) {
             console.error(error);
-            res.status(500).json({ error: "Internal Server Error" });
+            res.status(500).json({ msg: "Internal Server Error" });
         }
     });
 }
@@ -152,8 +189,7 @@ exports.assignMarks = assignMarks;
 function getMarkedStudents(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const mentorId = req.headers["id"];
-            // const mentorId = "65eae53ef9872871af5f1eb4";
+            const mentorId = req.params.mentorId;
             const mentor = yield model_1.Mentor.findById(mentorId);
             const mentorStudents = mentor.students;
             const markedStudents = [];
@@ -176,11 +212,26 @@ exports.getMarkedStudents = getMarkedStudents;
 function finalSubmit(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            // Implement logic
+            const mentorId = req.params.mentorId;
+            const mentor = yield model_1.Mentor.findById(mentorId);
+            if (mentor.isLocked) {
+                return res.status(200).json({ msg: "Already Locked!" });
+            }
+            const mentorStudents = mentor.students;
+            for (let i = 0; i < mentorStudents.length; i++) {
+                const item = mentorStudents[i];
+                const student = yield model_1.Student.findById(item);
+                if (!student || !student.isMarked) {
+                    return res.json({ msg: "Marks not assigned to some student" });
+                }
+            }
+            mentor.isLocked = true;
+            yield mentor.save();
+            return res.send("Locked!");
         }
         catch (error) {
             console.error(error);
-            res.status(500).json({ error: "Internal Server Error" });
+            res.status(500).json({ msg: "Internal Server Error" });
         }
     });
 }

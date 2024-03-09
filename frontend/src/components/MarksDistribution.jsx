@@ -4,6 +4,8 @@ import { isMentorLoggedInState } from "../store/atoms/auth";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Loader } from './Loader'
+import { BACKEND_URL } from '../utils/config';
 
 const MarksDistribution = () => {
   const navigate = useNavigate();
@@ -14,9 +16,7 @@ const MarksDistribution = () => {
   const [myStudents, setMyStudents] = useState([])
 
   async function getMarkedStudents() {
-    console.log(mentorId)
-    console.log('running')
-    const response = await axios.get(`http://localhost:3000/api/mentor/get-marked-students/`, {
+    const response = await axios.get(`${BACKEND_URL}/api/mentor/get-marked-students/${mentorId}`, {
       headers: {
         Authorization: 'bearer ' + localStorage.getItem('token')
       }
@@ -27,7 +27,7 @@ const MarksDistribution = () => {
   }
 
   async function getMentorId() {
-    const response = await axios.get('http://localhost:3000/api/auth/mentor-profile', {
+    const response = await axios.get('${BACKEND_URL}/api/auth/mentor-profile', {
       headers: {
         Authorization: 'bearer ' + localStorage.getItem('token')
       }
@@ -56,7 +56,7 @@ const MarksDistribution = () => {
 
   if (isLoading) {
     return (
-      <div>Loading</div>
+      <Loader />
     )
   }
   return (
@@ -68,13 +68,15 @@ const MarksDistribution = () => {
             (
               myStudents.map((item) => {
                 return (
-                  <div key={item._id} className=' bg-green flex flex-col items-center justify-center px-8 py-4 mx-12 mb-16 rounded-2xl'>
-                    <div className='rounded-full bg-black h-24 w-24 mb-4'></div>
+                  <div key={item._id} className=' flex flex-col items-center justify-center px-8 py-8 mx-12 mb-16 rounded-2xl shadow-[0_25px_40px_-15px_rgba(0,0,0,0.5)] border border-black'>
+                    <div className='mb-4 '>
+                    <img src={item.photo} alt="" className=' rounded-full h-24 w-24 object-cover'/>
+                    </div>
                     <div>{item.name}</div>
                     <div>{item.email}</div>
                     <div>{item.number}</div>
-                    <div className="bg-white rounded-md py-2 mt-8 w-full">
-                      <div className="text-center cursor-pointer" onClick={() => studentProfile(item._id)}>Visit Profile</div>
+                    <div className="bg-green  rounded-md py-2 mt-12 w-full">
+                      <div className="text-center cursor-pointer text-white" onClick={() => studentProfile(item._id)}>Visit Profile</div>
                     </div>
                   </div>
                 )

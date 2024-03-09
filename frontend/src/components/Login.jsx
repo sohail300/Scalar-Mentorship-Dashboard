@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { isMentorLoggedInState } from "../store/atoms/auth";
 import { useRecoilValue, useSetRecoilState } from "recoil";
+import { BACKEND_URL } from '../utils/config';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ const Login = () => {
   }
 
   async function handleLogin() {
-    const result = await axios.post('http://localhost:3000/api/auth/login', {
+    const result = await axios.post(`${BACKEND_URL}/api/auth/login`, {
       email,
       password
     })
@@ -49,14 +50,10 @@ const Login = () => {
               onClick={handleLogin}
             />
           </div>
-          <div className=" flex flex-row justify-between w-3/4 mt-8">
+          <div className=" flex flex-row justify-between mt-8">
             <div>
-              <div>Mentor 1 Email: mentor1@scalar.com</div>
-              <div>Mentor 1 Password: mentor1</div>
-            </div>
-            <div>
-              <div>Mentor 1 Email: mentor2@scalar.com</div>
-              <div>Mentor 1 Password: mentor2</div>
+              <div>Email: mentor1@scalar.com</div>
+              <div>Password: mentor1</div>
             </div>
           </div>
         </div>
