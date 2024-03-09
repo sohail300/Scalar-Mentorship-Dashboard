@@ -8,4 +8,5 @@ const student_1 = require("../controllers/student");
 const router = express_1.default.Router();
 router.get("/all", student_1.getAllStudents);
 router.get("/profile/:studentId", student_1.getProfile);
+router.get("/marks/:studentId", student_1.getMarks);
 exports.default = router;

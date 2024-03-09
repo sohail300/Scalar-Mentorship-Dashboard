@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -13,6 +22,7 @@ const studentSchema = new mongoose_1.default.Schema({
     photo: String,
     mentor: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Mentor" },
     marks: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Marks" },
+    isMarked: Boolean
 });
 const mentorSchema = new mongoose_1.default.Schema({
     name: String,
@@ -27,7 +37,28 @@ const marksSchema = new mongoose_1.default.Schema({
     execution: { type: Number, default: 0 },
     viva: { type: Number, default: 0 },
     total: { type: Number, default: 0 },
-    student: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Student", unique: true },
+    student: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: "Student",
+        unique: true,
+    },
+});
+// Pre-save hook for studentSchema
+studentSchema.pre('save', function (next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            if (!this.marks) {
+                const marks = new Marks();
+                marks.student = this._id;
+                yield marks.save();
+                this.marks = marks._id;
+            }
+            next();
+        }
+        catch (error) {
+            next(error);
+        }
+    });
 });
 const Student = mongoose_1.default.model("Student", studentSchema);
 exports.Student = Student;

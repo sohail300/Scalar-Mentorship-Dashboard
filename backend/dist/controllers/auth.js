@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signupStudent = exports.loginMentor = exports.signupMentor = void 0;
+exports.signupStudent = exports.signupMentor = exports.mentorProfile = exports.loginMentor = void 0;
 const zod_1 = require("zod");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -23,6 +23,58 @@ const envPath = path_1.default.join(__dirname, "../../.env");
 dotenv_1.default.config({ path: envPath });
 const saltRounds = 10;
 const secretKey = process.env.SECRET_KEY;
+const loginInput = zod_1.z.object({
+    email: zod_1.z
+        .string()
+        .min(1, { message: "This field has to be filled." })
+        .max(30)
+        .email("Please enter a valid email."),
+    password: zod_1.z.string().min(6, { message: "Minimum 6 characters." }).max(20),
+});
+function loginMentor(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const parsedInput = loginInput.safeParse(req.body);
+            if (parsedInput.success === false) {
+                return res.status(411).json({
+                    msg: parsedInput.error,
+                });
+            }
+            const email = parsedInput.data.email;
+            const password = parsedInput.data.password;
+            console.log(password);
+            const user = yield model_1.Mentor.findOne({ email });
+            if (user) {
+                const match = yield bcrypt_1.default.compare(password, user.password);
+                if (match) {
+                    const token = jsonwebtoken_1.default.sign({ id: user._id, role: "mentor" }, secretKey, {
+                        expiresIn: "1h",
+                    });
+                    return res.status(200).json({ token });
+                }
+                else {
+                    return res.status(403).send("Invalid Credentials");
+                }
+            }
+            else {
+                return res.status(403).send("Invalid credentials email");
+            }
+        }
+        catch (err) {
+            return res.status(500).send({ "Internal Error": err });
+        }
+    });
+}
+exports.loginMentor = loginMentor;
+function mentorProfile(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const id = req.headers["id"];
+        return res.json({ id });
+    });
+}
+exports.mentorProfile = mentorProfile;
+///////////////////////////////////////////////////////////////////////
+// SIGNUP MENTOR
 const signupInput = zod_1.z.object({
     email: zod_1.z
         .string()
@@ -77,50 +129,8 @@ function signupMentor(req, res) {
     });
 }
 exports.signupMentor = signupMentor;
-const loginInput = zod_1.z.object({
-    email: zod_1.z
-        .string()
-        .min(1, { message: "This field has to be filled." })
-        .max(30)
-        .email("Please enter a valid email."),
-    password: zod_1.z.string().min(6, { message: "Minimum 6 characters." }).max(20),
-});
-function loginMentor(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const parsedInput = loginInput.safeParse(req.body);
-            if (parsedInput.success === false) {
-                return res.status(411).json({
-                    msg: parsedInput.error,
-                });
-            }
-            const email = parsedInput.data.email;
-            const password = parsedInput.data.password;
-            console.log(password);
-            const user = yield model_1.Mentor.findOne({ email });
-            if (user) {
-                const match = yield bcrypt_1.default.compare(password, user.password);
-                if (match) {
-                    const token = jsonwebtoken_1.default.sign({ id: user._id, role: "mentor" }, secretKey, {
-                        expiresIn: "1h",
-                    });
-                    return res.status(200).json(token);
-                }
-                else {
-                    return res.status(403).send("Invalid Credentials");
-                }
-            }
-            else {
-                return res.status(403).send("Invalid credentials email");
-            }
-        }
-        catch (err) {
-            return res.status(500).send({ "Internal Error": err });
-        }
-    });
-}
-exports.loginMentor = loginMentor;
 ///////////////////////////////////////////////////////////////////////
+// SIGNUP STUDENT
 function signupStudent(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
