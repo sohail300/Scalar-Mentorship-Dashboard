@@ -5,7 +5,6 @@ import Navbar from './components/Navbar'
 import UnassignedStudents from './components/UnassignedStudents'
 import MyStudents from './components/MyStudents'
 import MarksDistribution from './components/MarksDistribution'
-import Login from './components/Login'
 import StudentProfile from './components/StudentProfile'
 import { RecoilRoot } from 'recoil'
 
@@ -18,7 +17,6 @@ function App() {
           <Dashboard />
           <Routes>
             <Route path='/' element={<MyStudents />} />
-            <Route path='/login' element={<Login />} />
             <Route path='/profile/:studentId' element={<StudentProfile />} />
             <Route path='unassigned-student' element={<UnassignedStudents />} />
             <Route path='my-student' element={<MyStudents />} />

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Marks, Student } from "../db/model";
 
+// Get all the unassigned students
 export async function getAllStudents(req: Request, res: Response) {
   try {
     const users = await Student.find();
@@ -14,6 +15,7 @@ export async function getAllStudents(req: Request, res: Response) {
   }
 }
 
+// Get profile details of a student
 export async function getProfile(req: Request, res: Response) {
   try {
     const studentId = req.params.studentId;
@@ -33,6 +35,7 @@ export async function getProfile(req: Request, res: Response) {
   }
 }
 
+// Get marks of a student
 export async function getMarks(req: Request, res: Response) {
   try {
     const studentId = req.params.studentId;

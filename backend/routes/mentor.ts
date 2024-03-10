@@ -1,6 +1,5 @@
 import express from "express";
 import { getMentorDetails, getStudents, assignStudent, assignMarks, getMarkedStudents, unassignStudent, sendMail, finalSubmit } from '../controllers/mentor'
-import { authenticate } from "../middleware/auth";
 
 const router = express.Router();
 

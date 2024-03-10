@@ -1,7 +1,4 @@
-import { useNavigate } from 'react-router-dom'
 import logo from '../assets/logo.png'
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import { isMentorLoggedInState } from '../store/atoms/auth';
 
 const Navbar = () => {
 
