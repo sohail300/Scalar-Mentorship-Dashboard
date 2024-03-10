@@ -33,9 +33,8 @@ const MyStudents = () => {
       } else if (event.target.id === 'non-marked') {
         return myStudents.filter(item => !item.isMarked);
       }
-      return prevList; // Default to the previous list if no conditions are met
+      return prevList;
     });
-    console.log(`Selected option: ${event.target.id}`);
   }
 
   useEffect(() => {

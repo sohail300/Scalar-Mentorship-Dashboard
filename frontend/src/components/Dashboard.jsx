@@ -7,7 +7,6 @@ const Dashboard = () => {
 
   async function finalSubmit() {
     const response = await axios.post(`${BACKEND_URL}/api/mentor/final-submit/`,null)
-    console.log(response.data.msg)
     alert(response.data.msg)
   }
 

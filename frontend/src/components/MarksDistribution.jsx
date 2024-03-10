@@ -11,7 +11,6 @@ const MarksDistribution = () => {
 
   async function getMarkedStudents() {
     const response = await axios.get(`${BACKEND_URL}/api/mentor/get-marked-students`)
-    console.log(response.data)
     setMyStudents(response.data.students)
     setIsLoading(false);
   }
