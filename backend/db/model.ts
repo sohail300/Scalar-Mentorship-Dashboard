@@ -25,7 +25,6 @@ const marksSchema = new mongoose.Schema({
   idea: { type: Number, default: 0 },
   execution: { type: Number, default: 0 },
   viva: { type: Number, default: 0 },
-  total: { type: Number, default: 0 },
   student: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Student",

@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMarks = exports.getProfile = exports.getAllStudents = void 0;
 const model_1 = require("../db/model");
+// Get all the unassigned students
 function getAllStudents(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -27,6 +28,7 @@ function getAllStudents(req, res) {
     });
 }
 exports.getAllStudents = getAllStudents;
+// Get profile details of a student
 function getProfile(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -49,6 +51,7 @@ function getProfile(req, res) {
     });
 }
 exports.getProfile = getProfile;
+// Get marks of a student
 function getMarks(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
