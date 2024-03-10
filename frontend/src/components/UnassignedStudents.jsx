@@ -1,8 +1,4 @@
-import { useRecoilState, useRecoilValue } from 'recoil';
 import { useState, useEffect } from 'react'
-import { isMentorLoggedInState } from '../store/atoms/auth';
-import { unassignedStudentState } from '../store/atoms/student';
-import Login from './Login';
 import axios from 'axios'
 import { Loader } from './Loader'
 import { useNavigate } from 'react-router-dom';
@@ -11,74 +7,27 @@ import { BACKEND_URL } from '../utils/config';
 const UnassignedStudents = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const isMentorLoggedIn = useRecoilValue(isMentorLoggedInState);
   const [unassignedStudent, setUnassignedStudent] = useState([]);
-  const [mentorId, setMentorId] = useState('')
-
-  const api = axios.create({
-    BACKEND_URL
-  })
-
-  async function getMentorId() {
-    const response = await api.get('/mentor-profile', {
-      headers: {
-        Authorization: 'bearer ' + localStorage.getItem('token')
-      }
-    })
-    setMentorId(response.data.id)
-  }
-
-  // async function getUnassignedStudents() {
-  //   const response = await api.get(`/get-students/${mentorId}`, {
-  //     headers: {
-  //       Authorization: 'bearer ' + localStorage.getItem('token')
-  //     }
-  //   })
-  //   console.log(response.data.students)
-  //   setStuduents(response.data.students);
-  //   setIsLoading(false);
-  //   console.log(students)
-  // }
 
   async function getUnassignedStudents() {
-    const response = await axios.get(`${BACKEND_URL}/api/student/all`, {
-      headers: {
-        Authorization: 'bearer ' + localStorage.getItem('token')
-      }
-    })
+    const response = await axios.get(`${BACKEND_URL}/api/student/all`)
     setUnassignedStudent(response.data.students)
     setIsLoading(false);
   }
 
   useEffect(() => {
-    getMentorId();
-  }, [])
-
-  useEffect(() => {
     getUnassignedStudents();
-  }, [mentorId])
-
+  }, [])
 
   async function assignToMentor(studentId) {
     const response = await axios.post(`${BACKEND_URL}/api/mentor/assign-student`, {
       studentId
-    }, {
-      headers: {
-        Authorization: 'bearer ' + localStorage.getItem('token')
-      }
     })
     alert(response.data.msg)
     if (response.data.msg == 'Assigned!') {
       navigate('/my-student')
     }
   }
-
-  if (!isMentorLoggedIn) {
-    return (
-      <Login />
-    )
-  }
-
 
   if (isLoading) {
     return (

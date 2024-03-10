@@ -1,16 +1,12 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { isMentorLoggedInState } from "../store/atoms/auth";
-import { useRecoilValue } from "recoil";
-import Login from "./Login";
 import { Loader } from './Loader'
 import { BACKEND_URL } from '../utils/config';
 
 const StudentProfile = () => {
   const { studentId } = useParams();
   const navigate = useNavigate();
-  const [mentorId, setMentorId] = useState('')
   const [isLoading, setIsLoading] = useState(true);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -20,7 +16,6 @@ const StudentProfile = () => {
   const [execution, setExecution] = useState(0);
   const [viva, setViva] = useState(0)
   const [total, setTotal] = useState(0)
-  const isMentorLoggedIn = useRecoilValue(isMentorLoggedInState);
 
   function handleIdea(e) {
     setIdea(e.target.value);
@@ -40,13 +35,12 @@ const StudentProfile = () => {
 
   async function updateProfile() {
     const result = await axios.post(`${BACKEND_URL}/api/mentor/assign-marks`, {
-      idea, execution, viva, studentId, mentorId
+      idea, execution, viva, studentId
     }, {
       headers: {
         Authorization: 'bearer ' + localStorage.getItem('token')
       }
     })
-    console.log(result.data.msg);
     alert(result.data.msg)
   }
 
@@ -56,7 +50,6 @@ const StudentProfile = () => {
         Authorization: 'bearer ' + localStorage.getItem('token')
       }
     })
-    console.log(response.data)
     setName(response.data.name)
     setEmail(response.data.email)
     setNumber(response.data.number)
@@ -69,11 +62,11 @@ const StudentProfile = () => {
         Authorization: 'bearer ' + localStorage.getItem('token')
       }
     })
-    console.log(response.data)
     setIdea(response.data.idea)
     setExecution(response.data.execution)
     setViva(response.data.viva)
     setTotal(Number(response.data.idea) + Number(response.data.execution) + Number(response.data.viva));
+    setIsLoading(false);
   }
 
   async function unassignStudent() {
@@ -84,35 +77,16 @@ const StudentProfile = () => {
         Authorization: 'bearer ' + localStorage.getItem('token')
       }
     })
-    console.log(response.data.msg)
     alert(response.data.msg)
     if (response.data.msg == 'Unassigned!') {
       navigate('/my-student')
     }
   }
 
-  async function getMentorId() {
-    const response = await axios.get(`${BACKEND_URL}/api/auth/mentor-profile`, {
-      headers: {
-        Authorization: 'bearer ' + localStorage.getItem('token')
-      }
-    })
-    console.log(response.data)
-    setIsLoading(false);
-    setMentorId(response.data.id)
-  }
-
   useEffect(() => {
     getData();
     getMarks();
-    getMentorId();
   }, [])
-
-  if (!isMentorLoggedIn) {
-    return (
-      <Login />
-    )
-  }
 
   if (isLoading) {
     return (

@@ -16,8 +16,7 @@ const mongoose_1 = require("mongoose");
 function getMentorDetails(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const mentorId = req.params.mentorId;
-            console.log(mentorId);
+            const mentorId = '65eae53ef9872871af5f1eb4';
             const mentor = yield model_1.Mentor.findById(mentorId);
             if (mentor) {
                 return res.status(200).json({ details: mentor });
@@ -37,8 +36,7 @@ exports.getMentorDetails = getMentorDetails;
 function getStudents(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const mentorId = req.params.mentorId;
-            console.log(mentorId);
+            const mentorId = '65eae53ef9872871af5f1eb4';
             const mentor = yield model_1.Mentor.findById(mentorId).populate("students");
             if (mentor) {
                 return res.status(200).json({ students: mentor.students });
@@ -58,7 +56,7 @@ exports.getStudents = getStudents;
 function assignStudent(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const mentorId = req.headers["id"];
+            const mentorId = '65eae53ef9872871af5f1eb4';
             const { studentId } = req.body;
             const student = yield model_1.Student.findById(studentId);
             if (!student) {
@@ -102,7 +100,7 @@ exports.assignStudent = assignStudent;
 function unassignStudent(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const mentorId = req.headers["id"];
+            const mentorId = '65eae53ef9872871af5f1eb4';
             const { studentId } = req.body;
             const student = yield model_1.Student.findById(studentId);
             if (!student) {
@@ -155,8 +153,8 @@ exports.unassignStudent = unassignStudent;
 function assignMarks(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const { studentId, mentorId } = req.body;
-            const { idea, execution, viva } = req.body;
+            const mentorId = '65eae53ef9872871af5f1eb4';
+            const { idea, execution, viva, studentId } = req.body;
             const student = yield model_1.Student.findById(studentId);
             const marks = yield model_1.Marks.findById(student.marks);
             const mentor = yield model_1.Mentor.findById(mentorId);
@@ -189,7 +187,7 @@ exports.assignMarks = assignMarks;
 function getMarkedStudents(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const mentorId = req.params.mentorId;
+            const mentorId = '65eae53ef9872871af5f1eb4';
             const mentor = yield model_1.Mentor.findById(mentorId);
             const mentorStudents = mentor.students;
             const markedStudents = [];
@@ -212,7 +210,7 @@ exports.getMarkedStudents = getMarkedStudents;
 function finalSubmit(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const mentorId = req.params.mentorId;
+            const mentorId = '65eae53ef9872871af5f1eb4';
             const mentor = yield model_1.Mentor.findById(mentorId);
             if (mentor.isLocked) {
                 return res.status(200).json({ msg: "Already Locked!" });

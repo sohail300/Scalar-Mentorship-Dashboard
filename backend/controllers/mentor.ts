@@ -5,8 +5,7 @@ import { Types } from "mongoose";
 // Get Mentor Details
 export async function getMentorDetails(req: Request, res: Response) {
   try {
-    const mentorId = req.params.mentorId;
-    console.log(mentorId);
+    const mentorId = '65eae53ef9872871af5f1eb4';
     const mentor = await Mentor.findById(mentorId);
 
     if (mentor) {
@@ -23,8 +22,7 @@ export async function getMentorDetails(req: Request, res: Response) {
 // Get the students assigned to a mentor
 export async function getStudents(req: Request, res: Response) {
   try {
-    const mentorId = req.params.mentorId;
-    console.log(mentorId);
+    const mentorId = '65eae53ef9872871af5f1eb4';
     const mentor = await Mentor.findById(mentorId).populate("students");
 
     if (mentor) {
@@ -41,7 +39,7 @@ export async function getStudents(req: Request, res: Response) {
 // Mentor assigns the student to himself/herself
 export async function assignStudent(req: Request, res: Response) {
   try {
-    const mentorId: any = req.headers["id"];
+    const mentorId = '65eae53ef9872871af5f1eb4';
     const { studentId } = req.body;
 
     const student = await Student.findById(studentId);
@@ -88,7 +86,7 @@ export async function assignStudent(req: Request, res: Response) {
 // Mentor assigns the student
 export async function unassignStudent(req: Request, res: Response) {
   try {
-    const mentorId: any = req.headers["id"];
+    const mentorId = '65eae53ef9872871af5f1eb4';
     const { studentId } = req.body;
 
     const student = await Student.findById(studentId);
@@ -146,8 +144,8 @@ export async function unassignStudent(req: Request, res: Response) {
 // Mentor assigns or edits marks to students
 export async function assignMarks(req: Request, res: Response) {
   try {
-    const { studentId, mentorId } = req.body;
-    const { idea, execution, viva } = req.body;
+    const mentorId = '65eae53ef9872871af5f1eb4';
+    const { idea, execution, viva, studentId } = req.body;
 
     const student = await Student.findById(studentId);
     const marks = await Marks.findById(student.marks);
@@ -183,7 +181,7 @@ export async function assignMarks(req: Request, res: Response) {
 // Get the marked students assigned to a mentor
 export async function getMarkedStudents(req: Request, res: Response) {
   try {
-    const mentorId = req.params.mentorId;
+    const mentorId = '65eae53ef9872871af5f1eb4';
 
     const mentor = await Mentor.findById(mentorId);
     const mentorStudents = mentor.students;
@@ -208,7 +206,7 @@ export async function getMarkedStudents(req: Request, res: Response) {
 
 export async function finalSubmit(req: Request, res: Response) {
   try {
-    const mentorId = req.params.mentorId;
+    const mentorId = '65eae53ef9872871af5f1eb4';
 
     const mentor = await Mentor.findById(mentorId);
 

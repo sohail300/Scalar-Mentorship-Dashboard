@@ -4,13 +4,13 @@ import { authenticate } from "../middleware/auth";
 
 const router = express.Router();
 
-router.get("/:mentorId", getMentorDetails);
-router.get("/get-students/:mentorId", getStudents);
-router.post("/assign-student", authenticate, assignStudent);
-router.post("/unassign-student", authenticate, unassignStudent);
-router.post("/assign-marks",authenticate, assignMarks);
-router.get("/get-marked-students/:mentorId",authenticate, getMarkedStudents);
-router.post("/final-submit/:mentorId",authenticate, finalSubmit);
+router.get("/", getMentorDetails);
+router.get("/get-students", getStudents);
+router.post("/assign-student", assignStudent);
+router.post("/unassign-student", unassignStudent);
+router.post("/assign-marks", assignMarks);
+router.get("/get-marked-students", getMarkedStudents);
+router.post("/final-submit", finalSubmit);
 router.post("/send-mail", sendMail);
 
 export default router;

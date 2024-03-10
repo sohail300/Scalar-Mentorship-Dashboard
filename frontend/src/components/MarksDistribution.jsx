@@ -1,6 +1,3 @@
-import { useRecoilValue } from "recoil";
-import Login from "./Login";
-import { isMentorLoggedInState } from "../store/atoms/auth";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -10,30 +7,13 @@ import { BACKEND_URL } from '../utils/config';
 const MarksDistribution = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const isMentorLoggedIn = useRecoilValue(isMentorLoggedInState);
-  console.log(isMentorLoggedIn)
-  const [mentorId, setMentorId] = useState('')
   const [myStudents, setMyStudents] = useState([])
 
   async function getMarkedStudents() {
-    const response = await axios.get(`${BACKEND_URL}/api/mentor/get-marked-students/${mentorId}`, {
-      headers: {
-        Authorization: 'bearer ' + localStorage.getItem('token')
-      }
-    })
+    const response = await axios.get(`${BACKEND_URL}/api/mentor/get-marked-students`)
     console.log(response.data)
     setMyStudents(response.data.students)
     setIsLoading(false);
-  }
-
-  async function getMentorId() {
-    const response = await axios.get('${BACKEND_URL}/api/auth/mentor-profile', {
-      headers: {
-        Authorization: 'bearer ' + localStorage.getItem('token')
-      }
-    })
-    console.log(response.data)
-    setMentorId(response.data.id)
   }
 
   async function studentProfile(studentId) {
@@ -41,18 +21,8 @@ const MarksDistribution = () => {
   }
 
   useEffect(() => {
-    getMentorId();
-  }, [])
-
-  useEffect(() => {
     getMarkedStudents();
-  }, [mentorId])
-
-  if (!isMentorLoggedIn) {
-    return (
-      <Login />
-    )
-  }
+  }, [])
 
   if (isLoading) {
     return (

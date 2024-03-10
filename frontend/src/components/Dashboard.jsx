@@ -1,59 +1,24 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'
 import { BACKEND_URL } from '../utils/config';
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [mentorId, setMentorId] = useState('')
-  const [name, setName] = useState('Name')
-  const [email, setEmail] = useState('Email')
-  const [photo, setPhoto] = useState('https://via.placeholder.com/150')
-
-  async function getMentorId() {
-    const response = await axios.get(`${BACKEND_URL}/api/auth/mentor-profile`, {
-      headers: {
-        Authorization: 'bearer ' + localStorage.getItem('token')
-      }
-    })
-    setMentorId(response.data.id)
-  }
-
-  async function getMentorDetails() {
-    const response = await axios.get(`${BACKEND_URL}/api/mentor/${mentorId}`, {
-      headers: {
-        Authorization: 'bearer ' + localStorage.getItem('token')
-      }
-    })
-    console.log(response.data.details)
-    setName(response.data.details.name);
-    setEmail(response.data.details.email);
-    setPhoto(response.data.details.photo);
-  }
 
   async function finalSubmit() {
-    const response = await axios.post(`${BACKEND_URL}/api/mentor/final-submit/${mentorId}`,null, {
-      headers: {
-        Authorization: 'bearer ' + localStorage.getItem('token')
-      }
-    })
+    const response = await axios.post(`${BACKEND_URL}/api/mentor/final-submit/`,null)
     console.log(response.data.msg)
     alert(response.data.msg)
   }
-
-  useEffect(() => {
-    getMentorId();
-    getMentorDetails();
-  }, [])
 
   return (
     <div className=' bg-blue h-[100%] w-1/4 rounded-2xl'>
       <div className='text-white flex flex-col items-center justify-center p-8'>
         <div className=' mb-4'>
-          <img src={photo} alt="" className='rounded-full h-24 w-24 object-cover' />
+          <img src='https://media.istockphoto.com/id/1369199360/photo/portrait-of-a-handsome-young-businessman-working-in-office.jpg?s=2048x2048&w=is&k=20&c=R_Neuu8r9szb2yH56Ck9q9Tfd3kLFWClJGp_riHSKEE=' alt="" className='rounded-full h-24 w-24 object-cover' />
         </div>
-        <div>{name}</div>
-        <div>{email}</div>
+        <div>Mentor 1</div>
+        <div>mentor1@scalar.com</div>
       </div>
       <div className=' text-white flex flex-col items-start'>
         <div className=' cursor-pointer px-4 pb-4 mb-4' onClick={() => navigate('/unassigned-student')}>Unassigned Students</div>
