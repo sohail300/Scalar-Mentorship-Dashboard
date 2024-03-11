@@ -36,20 +36,12 @@ const StudentProfile = () => {
   async function updateProfile() {
     const result = await axios.post(`${BACKEND_URL}/api/mentor/assign-marks`, {
       idea, execution, viva, studentId
-    }, {
-      headers: {
-        Authorization: 'bearer ' + localStorage.getItem('token')
-      }
     })
     alert(result.data.msg)
   }
 
   async function getData() {
-    const response = await axios.get(`${BACKEND_URL}/api/student/profile/${studentId}`, {
-      headers: {
-        Authorization: 'bearer ' + localStorage.getItem('token')
-      }
-    })
+    const response = await axios.get(`${BACKEND_URL}/api/student/profile/${studentId}`)
     setName(response.data.name)
     setEmail(response.data.email)
     setNumber(response.data.number)
@@ -57,11 +49,7 @@ const StudentProfile = () => {
   }
 
   async function getMarks() {
-    const response = await axios.get(`${BACKEND_URL}/api/student/marks/${studentId}`, {
-      headers: {
-        Authorization: 'bearer ' + localStorage.getItem('token')
-      }
-    })
+    const response = await axios.get(`${BACKEND_URL}/api/student/marks/${studentId}`)
     setIdea(response.data.idea)
     setExecution(response.data.execution)
     setViva(response.data.viva)
@@ -72,12 +60,9 @@ const StudentProfile = () => {
   async function unassignStudent() {
     const response = await axios.post(`${BACKEND_URL}/api/mentor/unassign-student`, {
       studentId
-    }, {
-      headers: {
-        Authorization: 'bearer ' + localStorage.getItem('token')
-      }
     })
     alert(response.data.msg)
+    console.log(response.data.msg)
     if (response.data.msg == 'Unassigned!') {
       navigate('/my-student')
     }

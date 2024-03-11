@@ -6,7 +6,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   async function finalSubmit() {
-    const response = await axios.post(`${BACKEND_URL}/api/mentor/final-submit/`,null)
+    const response = await axios.get(`${BACKEND_URL}/api/mentor/final-submit/`)
     alert(response.data.msg)
   }
 

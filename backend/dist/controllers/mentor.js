@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendMail = exports.finalSubmit = exports.getMarkedStudents = exports.assignMarks = exports.unassignStudent = exports.assignStudent = exports.getStudents = void 0;
+exports.sendMail = exports.unlock = exports.finalSubmit = exports.getMarkedStudents = exports.assignMarks = exports.unassignStudent = exports.assignStudent = exports.getStudents = void 0;
 const model_1 = require("../db/model");
 const mongoose_1 = require("mongoose");
 const nodemailer_1 = __importDefault(require("nodemailer"));
@@ -67,16 +67,16 @@ function assignStudent(req, res) {
                 yield mentor.save();
             }
             else {
-                return res.status(403).json({ msg: "Mentor already has 4 students" });
+                return res.status(200).json({ msg: "Mentor already has 4 students" });
             }
             if (!student.mentor) {
                 student.mentor = mentorIdObject;
                 yield student.save();
             }
             else {
-                return res.status(403).json({ msg: "Mentor already exist" });
+                return res.status(200).json({ msg: "Mentor already exist" });
             }
-            return res.status(201).json({ msg: "Assigned!" });
+            return res.status(200).json({ msg: "Assigned!" });
         }
         catch (error) {
             console.error(error);
@@ -97,13 +97,13 @@ function unassignStudent(req, res) {
             }
             const mentor = yield model_1.Mentor.findById(mentorId);
             console.log(mentor);
+            if (!mentor) {
+                return res.status(403).json({ msg: "Mentor doesnt exist" });
+            }
             if (mentor.isLocked) {
                 return res
                     .status(200)
                     .json({ msg: "It is locked, you cant change now!" });
-            }
-            if (!mentor) {
-                return res.status(403).json({ msg: "Mentor doesnt exist" });
             }
             const studentIdObject = new mongoose_1.Types.ObjectId(studentId);
             const mentorIdObject = new mongoose_1.Types.ObjectId(mentorId);
@@ -123,13 +123,13 @@ function unassignStudent(req, res) {
                     yield student.save();
                 }
                 else {
-                    return res.status(403).json({ msg: "Mentor isnt this" });
+                    return res.status(200).json({ msg: "Mentor isnt this" });
                 }
             }
             else {
-                return res.status(403).json({ msg: "Mentor has 3 students" });
+                return res.status(200).json({ msg: "Mentor has 3 students" });
             }
-            return res.status(201).json({ msg: "Unassigned!" });
+            return res.status(200).json({ msg: "Unassigned!" });
         }
         catch (error) {
             console.error(error);
@@ -149,11 +149,11 @@ function assignMarks(req, res) {
             const mentor = yield model_1.Mentor.findById(mentorId);
             if (mentor.isLocked) {
                 return res
-                    .status(203)
+                    .status(200)
                     .json({ msg: "It is locked, you cant change now!" });
             }
             if (!marks) {
-                return res.status(404).json({ msg: "Marks not found for the student" });
+                return res.status(200).json({ msg: "Marks not found for the student" });
             }
             marks.idea = idea;
             marks.execution = execution;
@@ -162,7 +162,7 @@ function assignMarks(req, res) {
             student.isMarked = true;
             yield student.save();
             yield marks.save();
-            return res.status(201).json({ msg: "Marks Assigned!" });
+            return res.status(200).json({ msg: "Marks Assigned!" });
         }
         catch (error) {
             console.error(error);
@@ -186,7 +186,7 @@ function getMarkedStudents(req, res) {
                     markedStudents.push(student);
                 }
             }
-            return res.json({ students: markedStudents });
+            return res.status(200).json({ students: markedStudents });
         }
         catch (error) {
             console.error(error);
@@ -208,13 +208,13 @@ function finalSubmit(req, res) {
                 const item = mentorStudents[i];
                 const student = yield model_1.Student.findById(item);
                 if (!student || !student.isMarked) {
-                    return res.json({ msg: "Marks not assigned to some student" });
+                    return res.status(200).json({ msg: "Marks not assigned to some student" });
                 }
             }
             mentor.isLocked = true;
             yield mentor.save();
             const result = yield axios_1.default.get('http://localhost:3000/api/mentor/send-mail');
-            return res.json({ msg: "Locked and Mail Sent!" });
+            return res.status(200).json({ msg: "Locked and Mail Sent!" });
         }
         catch (error) {
             console.error(error);
@@ -223,6 +223,25 @@ function finalSubmit(req, res) {
     });
 }
 exports.finalSubmit = finalSubmit;
+function unlock(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const mentorId = "65eae53ef9872871af5f1eb4";
+            const mentor = yield model_1.Mentor.findById(mentorId);
+            if (!mentor.isLocked) {
+                return res.status(200).json({ msg: "Already unlocked Locked!" });
+            }
+            mentor.isLocked = false;
+            yield mentor.save();
+            return res.status(200).json({ msg: "unlocked!" });
+        }
+        catch (error) {
+            console.error(error);
+            res.status(500).json({ msg: "Internal Server Error" });
+        }
+    });
+}
+exports.unlock = unlock;
 const transporter = nodemailer_1.default.createTransport({
     host: process.env.MAIL_HOST,
     port: Number(process.env.MAIL_PORT),
@@ -242,7 +261,6 @@ function sendMail(req, res) {
                 const item = mentorStudents[i];
                 const student = yield model_1.Student.findById(item);
                 if (student) {
-                    console.log(student.email);
                     const info = yield transporter.sendMail({
                         from: `"Scalar Mentor Team" <sohailatwork10@gmail.com>`,
                         to: `${student.email}`,
@@ -252,7 +270,7 @@ function sendMail(req, res) {
                     console.log("Message sent:", info.messageId);
                 }
             }
-            return res.json({ msg: 'Mails Sent!' });
+            return res.status(200).json({ msg: 'Mails Sent!' });
         }
         catch (error) {
             console.error(error);
